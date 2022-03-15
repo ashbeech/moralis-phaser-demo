@@ -1,3 +1,78 @@
+# `Phaser x Moralis`
+
+## About
+
+Aim: Combine a framework that simplifies game development ([Phaser](https://phaser.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)) and one that simplifies web3 functionality ([Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)).
+
+These tutorial videos are a great introduction.<br/>
+Part 1: [Link to Moralis YouTube Video](https://youtu.be/Z4dWavvyhbA?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)<br/>
+
+## Further Watching
+
+[NFT Game Design Principles](https://youtu.be/j4kyOTOWSRQ?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)<br/>
+[Build an NFT Game Smart Contract](https://youtu.be/xcCMTb5jpKE?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)
+
+### Much more to come [WIP]
+
+- Incorporate play-to-earn mechanics via an ERC20 token contract. [ℹ️ useweb3executefunction](https://github.com/MoralisWeb3/react-moralis/#useweb3executefunction)
+
+## Quick Launch 🚀
+
+Via terminal, navigate to your local dev directory and run:
+
+```sh
+git clone https://github.com/ashbeech/moralis-phaser-demo.git
+
+```
+
+Then navigate into the cloned project's root directory to install all dependencies:
+
+```sh
+npm install
+
+```
+
+Go to [Moralis.io](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine) to create your server instance. Rename `.env.example` file to `.env` and add your Moralis server credentials. For help see ['How to start Moralis Server'](https://docs.moralis.io/moralis-server/getting-started/create-a-moralis-server).
+
+Run your app:
+
+```sh
+npm start
+```
+
+<br/>
+
+## Dependencies 🏗
+
+`create-react-app`: [ℹ️ Docs](https://create-react-app.dev/docs/getting-started)
+`react-moralis`: [ℹ️ Docs](https://www.npmjs.com/package/react-moralis)<br/>
+`phaser`: [ℹ️ Docs](https://newdocs.phaser.io/docs/3.55.2)<br/>
+<br/>
+
+---
+
+# 🤝 `Need help?`
+
+If you need help with setting up the app or have other questions - don't hesitate to write in our community forum and we will check asap. [Forum link](https://forum.moralis.io). The best thing about Moralis is the super active community ready to help at any time! We help each other.
+
+# ⭐️ `Star us`
+
+If this code brought you value, please star this project.
+
+This is bullish.
+
+Phaser:
+
+Built on [react-moralis](https://github.com/MoralisWeb3/react-moralis)
+
+<br/>
+
+These tutorial videos are a great introduction.<br/>
+Part 1: [Link to Moralis YouTube Video](https://youtu.be/2nM1dTm2zww)<br/>
+Part 2: [Link to Moralis YouTube Video](https://youtu.be/a3zIFrJl7UU)<br/>
+Part 3: [Link to Moralis YouTube Video](https://youtu.be/NC7T1Li9wjE)<br/>
+Part 4: [Link to Moralis YouTube Video](https://youtu.be/u3SoK8A1SEA)<br/>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
