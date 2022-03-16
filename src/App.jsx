@@ -126,22 +126,21 @@ function App() {
     // init 2d game (Phaser canvas element)
     if (game === null) {
       game = new Phaser.Game(config);
+      // listen to in-game events
+      // before starting we sign in with wallet
+      game.events.on("LOGIN_PLAYER", (event) => {
+        console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
+        // trigger wallet authentication
+        //logOut();
+        login();
+      });
+      // when GAME_OVER interact with chain
+      game.events.on("BLOCK_CHECK", (event) => {
+        console.log("⛓⛓⛓ Game Event Triggered Web3 Func ⛓⛓⛓");
+        // trigger fetching of on-chain data to test connection
+        fetch();
+      });
     }
-
-    // listen to in-game events
-    // before starting we sign in with wallet
-    game.events.on("LOGIN_PLAYER", (event) => {
-      console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
-      // trigger wallet authentication
-      //logOut();
-      login();
-    });
-    // when GAME_OVER interact with chain
-    game.events.on("BLOCK_CHECK", (event) => {
-      console.log("⛓⛓⛓ Game Event Triggered Web3 Func ⛓⛓⛓");
-      // trigger fetching of on-chain data to test connection
-      fetch();
-    });
   }
 
   return <></>;
