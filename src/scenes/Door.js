@@ -34,9 +34,9 @@ export default class Door extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
-  destroy() {
+  /*   destroy() {
     this.off("pointerup");
-  }
+  } */
 
   start(time) {
     this.timeToOpen = time + Phaser.Math.RND.between(500, 4000);
