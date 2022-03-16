@@ -1,5 +1,7 @@
 # `Phaser x Moralis`
 
+![Moralis web3 game in minutes (Moralis x Phaser)](https://gateway.pinata.cloud/ipfs/QmdyogXsYpeG8H2gxwGZXZgkYF5CbexA8Y3RVkWvhvn184)
+
 ## About
 
 Aim: Combine a framework that simplifies game development ([Phaser](https://phaser.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)) and one that simplifies web3 functionality ([Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)).
