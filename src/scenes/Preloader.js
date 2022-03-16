@@ -9,14 +9,14 @@ import { createLogger } from "redux-logger";
 var emitter = new Phaser.Events.EventEmitter();
 
 // initial vars for game (optional)
-const initState = { players: [], score: 0, gameOver: false };
+const initState = { player: {}, score: 0, gameOver: false };
 
 // reducer
 function reducer(state = initState, action) {
   switch (action.type) {
     case AUTH:
       emitter.emit("AUTH", "🚀");
-      return { ...state, players: [...state.players, action.player] };
+      return { ...state };
     default:
       return state;
   }
@@ -101,7 +101,6 @@ export default class Preloader extends Phaser.Scene {
     this.loading.setInteractive();
 
     this.loading.once("pointerdown", () => {
-      //this.scene.start("MainMenu");
       // communicate with ReactJS app
       events.dispatch({ type: LOGIN_PLAYER, score: 0 });
     });
