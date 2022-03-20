@@ -15,7 +15,7 @@ const initState = { player: {}, score: 0, gameOver: false };
 function reducer(state = initState, action) {
   switch (action.type) {
     case AUTH:
-      emitter.emit("AUTH", "🚀");
+      emitter.emit("AUTH", action);
       return { ...state };
     default:
       return state;
@@ -34,10 +34,15 @@ export const authEvents = createStore(
 export default class Preloader extends Phaser.Scene {
   constructor() {
     super("Preloader");
-    //  Set-up an event handler for authenticated login
+    // set-up an event handler for authenticated login
     emitter.on("AUTH", (event) => {
-      console.log(event);
-      this.scene.start("MainMenu");
+      console.log("EVENT:", event);
+      // check user has signed-in; id exists
+      if (!event.player?.id) {
+        this.scene.start("Preloader");
+      } else {
+        this.scene.start("MainMenu");
+      }
     });
   }
 
@@ -74,7 +79,7 @@ export default class Preloader extends Phaser.Scene {
   }
 
   create() {
-    //  Create our global animations
+    //  create our global animations
 
     this.anims.create({
       key: "doorOpen",
