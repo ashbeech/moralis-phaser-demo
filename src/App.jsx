@@ -93,7 +93,7 @@ function App() {
   // check for token_address: 0xed34a7149b1a80c06e368354ac2b746807118f83
   // TEST: switch between addresses that hold and don't hold, valid NFT
 
-  const check_address = "0x1…";
+  const check_address = "0xed34a7149b1a80c06e368354ac2b746807118f83";
   const network_chain_id = "0x13881";
 
   // 4. create function to find NFT within a user's balance of tokens
@@ -120,6 +120,7 @@ function App() {
             // I'm looking for the index i, when the condition is true
             console.log(_data.result[i].token_address);
           }
+          // TODO: Try _data.result.includes(check_address) instead
           valid = _data.result.indexOf(check_address);
           console.log(valid);
           if (valid) {
