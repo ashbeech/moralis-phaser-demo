@@ -12,6 +12,8 @@ import {
   useMoralis,
   useMoralisWeb3Api,
   useMoralisWeb3ApiCall,
+  // 1.
+  useNFTBalances,
 } from "react-moralis";
 
 let game = null;
@@ -62,25 +64,91 @@ function App() {
 
   // test connection to a connected chain
   const Web3Api = useMoralisWeb3Api();
-  const { fetch, data } = useMoralisWeb3ApiCall(Web3Api.native.getBlock, {
+  const { fetch, _data } = useMoralisWeb3ApiCall(Web3Api.native.getBlock, {
     block_number_or_hash: block,
   });
 
   // update feedback on re-renders
   useEffect(() => {
-    if (data) {
-      console.log("BLOCK DATA:", data);
+    if (_data) {
+      console.log("BLOCK DATA:", _data);
     }
     if (user) {
       console.log(user);
     }
-  }, [data, user]);
+  }, [_data, user]);
 
   function startGame(_user) {
     console.log("USER:", _user);
     // communicate to Phaser game that player is authenticated
     authEvents.dispatch({ type: AUTH, player: _user });
   }
+
+  // 2.
+  const { getNFTBalances, data, error, isLoading, isFetching } =
+    useNFTBalances();
+
+  // 3.
+  // chain id for Polygon Mumbai testnet: 0x13881
+  // check for token_address: 0xed34a7149b1a80c06e368354ac2b746807118f83
+  // switch between addresses that hold and don't hold, valid NFT
+  // 0x771a3b6B7A867C727952ed2D1307e9a4247511aa
+  // 0x5B3e180e42b5E702C5A090A79D6B05152d4fd2a2
+
+  const check_address = "0x1…";
+  const network_chain_id = "0x13881";
+
+  // 4. create function to find NFT within a user's balance of tokens
+
+  const checkNFTBalance = async (__user) => {
+    let valid = false;
+    await getNFTBalances({
+      params: {
+        chain: network_chain_id,
+      },
+    })
+      .then(function (_data) {
+        // check for matching results in user's wallet
+        if (!_data || _data?.result.length === 0) {
+          // no NFTs returned = false
+          console.log("Nope");
+          authEvents.dispatch({ type: AUTH, player: null });
+          logout();
+          console.log("logged out");
+        } else {
+          console.log("RAW DATA:", _data.result);
+
+          for (let i = 0; i < _data.result.length; i++) {
+            // I'm looking for the index i, when the condition is true
+            console.log(_data.result[i].token_address);
+          }
+          valid = _data.result.indexOf(check_address);
+          console.log(valid);
+          if (valid) {
+            // valid NFT to allow access found
+            console.log("ACCESS GRANTED!");
+            valid = true;
+
+            //console.log("NFT FOUND:", result);
+            if (!valid) {
+              // TODO: More elegantly handle failure to sign in.
+              // print access denied feedback
+              console.log("Access Denied: No Valid NFT");
+            } else {
+              // valid NFT holders can play; change scene within Phaser
+              startGame(__user);
+            }
+          } else {
+            // no valid NFT in possesion of user
+            console.log("ACCESS DENIED!");
+          }
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    return valid;
+  };
 
   const login = async () => {
     if (!isAuthenticated) {
@@ -89,12 +157,13 @@ function App() {
           console.log("logged in user:", _user);
           console.log(_user?.get("ethAddress"));
           console.log("Is Authenticated:", isAuthenticated);
-
           if (!_user) {
-            // TODO: Elegantly handle failure to sign in.
+            // TODO: More elegantly handle failure to sign in.
             authEvents.dispatch({ type: AUTH, player: null });
+            logout();
+            console.log("logged out");
           } else {
-            startGame(_user);
+            checkNFTBalance(_user);
           }
         })
         .catch(function (error) {
@@ -103,7 +172,7 @@ function App() {
     }
   };
 
-  // TODO: add logout functionality to game
+  // TODO: add logout functionality within Phaser game UI/UX
   /*
   const logOut = async () => {
     await logout();
@@ -115,7 +184,7 @@ function App() {
     setLoaded(true);
     const config = {
       type: Phaser.AUTO,
-      //gameTitle: "ReactJS x Phaser x Moralis",
+      //gameTitle: "Phaser x Moralis",
       parent: "game-container",
       autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
       autoFocus: true,
@@ -155,7 +224,11 @@ function App() {
     });
   }
 
-  return <></>;
+  return (
+    <>
+      <pre style={{ color: "#FFF" }}>{JSON.stringify(user, null, 2)}</pre>
+    </>
+  );
 }
 
 export default App;
