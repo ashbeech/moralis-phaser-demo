@@ -77,6 +77,7 @@ function App() {
   }, [data, user]);
 
   function startGame(_user) {
+    console.log("USER:", _user);
     // communicate to Phaser game that player is authenticated
     authEvents.dispatch({ type: AUTH, player: _user });
   }
@@ -85,9 +86,16 @@ function App() {
     if (!isAuthenticated) {
       await authenticate({ signingMessage: "Log in using Moralis" })
         .then(function (_user) {
-          //console.log("logged in user:", _user);
-          //console.log(_user?.get("ethAddress"));
-          startGame(_user);
+          console.log("logged in user:", _user);
+          console.log(_user?.get("ethAddress"));
+          console.log("Is Authenticated:", isAuthenticated);
+
+          if (!_user) {
+            // TODO: Elegantly handle failure to sign in.
+            authEvents.dispatch({ type: AUTH, player: null });
+          } else {
+            startGame(_user);
+          }
         })
         .catch(function (error) {
           console.log(error);

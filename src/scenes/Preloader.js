@@ -15,7 +15,7 @@ const initState = { player: {}, score: 0, gameOver: false };
 function reducer(state = initState, action) {
   switch (action.type) {
     case AUTH:
-      emitter.emit("AUTH", "🚀");
+      emitter.emit("AUTH", action);
       return { ...state };
     default:
       return state;
@@ -36,8 +36,12 @@ export default class Preloader extends Phaser.Scene {
     super("Preloader");
     //  Set-up an event handler for authenticated login
     emitter.on("AUTH", (event) => {
-      console.log(event);
-      this.scene.start("MainMenu");
+      console.log("EVENT:", event);
+      if (!event.player?.id) {
+        this.scene.start("Preloader");
+      } else {
+        this.scene.start("MainMenu");
+      }
     });
   }
 
