@@ -91,9 +91,7 @@ function App() {
   // 3.
   // chain id for Polygon Mumbai testnet: 0x13881
   // check for token_address: 0xed34a7149b1a80c06e368354ac2b746807118f83
-  // switch between addresses that hold and don't hold, valid NFT
-  // 0x771a3b6B7A867C727952ed2D1307e9a4247511aa
-  // 0x5B3e180e42b5E702C5A090A79D6B05152d4fd2a2
+  // TEST: switch between addresses that hold and don't hold, valid NFT
 
   const check_address = "0x1…";
   const network_chain_id = "0x13881";
