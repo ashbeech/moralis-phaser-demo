@@ -1,24 +1,30 @@
 import Phaser from "phaser";
 import Boot from "./scenes/Boot.js";
 import Preloader, { authEvents, AUTH } from "./scenes/Preloader.js";
-import MainMenu from "./scenes/MainMenu.js";
+import MainMenu, { nftEvents, LOAD_NFT } from "./scenes/MainMenu.js";
+// 6 load nft into main game
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 
+//6.
+import axios from "axios";
+
 import {
   useMoralis,
-  useMoralisWeb3Api,
-  useMoralisWeb3ApiCall,
+  //useMoralisWeb3Api,
+  //useMoralisWeb3ApiCall,
+
   // 1.
+  // import NFT component
   useNFTBalances,
 } from "react-moralis";
 
 let game = null;
 
-const initState = { player: {}, score: 0, gameOver: false };
+const initState = { player: {}, score: 0, nft: "", gameOver: false };
 
 //event types
 export const GET_PLAYER = "GET_PLAYER";
@@ -63,6 +69,7 @@ function App() {
   // https://github.com/MoralisWeb3/react-moralis/#useweb3executefunction
 
   // test connection to a connected chain
+  /* 
   const Web3Api = useMoralisWeb3Api();
   const { fetch, _data } = useMoralisWeb3ApiCall(Web3Api.native.getBlock, {
     block_number_or_hash: block,
@@ -77,27 +84,84 @@ function App() {
       console.log(user);
     }
   }, [_data, user]);
+  */
 
-  function startGame(_user) {
+  function startGame(_user, _demoNFTimage) {
     console.log("USER:", _user);
     // communicate to Phaser game that player is authenticated
     authEvents.dispatch({ type: AUTH, player: _user });
   }
 
   // 2.
-  const { getNFTBalances, data, error, isLoading, isFetching } =
-    useNFTBalances();
+  // we declare the func that will allow us to easily grab NFTs from a user's wallet
+  const { getNFTBalances } = useNFTBalances();
 
   // 3.
-  // chain id for Polygon Mumbai testnet: 0x13881
-  // check for token_address: 0xed34a7149b1a80c06e368354ac2b746807118f83
-  // TEST: switch between addresses that hold and don't hold, valid NFT
+  // declare contract address that the game deems valid; to allow access to a player
+  const check_address = "0x…"; // <-- enter your valid 'NFT collection' contract address
+  const network_chain_id = "0x13881"; // <-- enter chain id you want to target
 
-  const check_address = "0xed34a7149b1a80c06e368354ac2b746807118f83";
-  const network_chain_id = "0x13881";
+  //  NOTES:
+  // • chain id for Polygon Mumbai testnet: 0x13881
+  // • check for token_address: 0x…
+  // • TEST: switch between user wallet addresses that hold and don't hold, valid NFT
 
-  // 4. create function to find NFT within a user's balance of tokens
+  const nftMetadata = [];
+  const findNFTMetadata = async (___data) => {
+    let p = 0;
+    for (let i = 0; i < ___data.length; i++) {
+      console.log(___data[i].token_address);
+      if (___data[i].token_address === check_address) {
+        console.log(___data[i].token_uri);
+        nftMetadata[p] = ___data[i].token_uri;
+        p++;
+      }
+    }
+  };
 
+  let demoNFTimageURL = "";
+  const getJSON = async (_metadata) => {
+    try {
+      await axios.get(_metadata).then((res) => {
+        console.log("Initial Image URL:", res.data?.image);
+        demoNFTimageURL = res.data?.image;
+        // if already is a moralis ipfs link, then skip further processing
+        if (demoNFTimageURL.match("moralis")) {
+        } else {
+          let imageSplit = res.data?.image.split("/");
+          console.log("IMAGE CID:", res.data?.image.split("/"));
+          // FYI the file's CID can also be displayed from any other IPFS node URL prefix e.g. https://ipfs.io/ipfs/CID/xxx.png
+          demoNFTimageURL =
+            "https://ipfs.moralis.io:2053/ipfs/" +
+            imageSplit[2] +
+            "/" +
+            imageSplit[3];
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // 5.
+  // processor NFT metadata to locate renderable image data
+  const compileNFT = async (___user, __data) => {
+    await findNFTMetadata(__data);
+    await getJSON(nftMetadata[0]);
+    console.log("Final NFT Image URL:", demoNFTimageURL);
+
+    // TODO: check valid metadata available
+    if (demoNFTimageURL === "") {
+    } else {
+      // valid NFT holders can play; change scene within Phaser
+      nftEvents.dispatch({ type: LOAD_NFT, nft: demoNFTimageURL });
+      // start game
+      startGame(___user, demoNFTimageURL);
+    }
+  };
+
+  // 4.
+  // check user's balance for token contract address matching above
   const checkNFTBalance = async (__user) => {
     let valid = false;
     await getNFTBalances({
@@ -106,6 +170,7 @@ function App() {
       },
     })
       .then(function (_data) {
+        console.log(_data);
         // check for matching results in user's wallet
         if (!_data || _data?.result.length === 0) {
           // no NFTs returned = false
@@ -114,28 +179,22 @@ function App() {
           logout();
           console.log("logged out");
         } else {
-          console.log("RAW DATA:", _data.result);
+          valid = _data.result.some(
+            (elem) => elem.token_address === check_address
+          );
 
-          for (let i = 0; i < _data.result.length; i++) {
-            // I'm looking for the index i, when the condition is true
-            console.log(_data.result[i].token_address);
-          }
-          // TODO: Try _data.result.includes(check_address) instead
-          valid = _data.result.indexOf(check_address);
           console.log(valid);
           if (valid) {
             // valid NFT to allow access found
-            console.log("ACCESS GRANTED!");
-            valid = true;
+            console.log("ACCESS GRANTED!", valid);
 
-            //console.log("NFT FOUND:", result);
             if (!valid) {
               // TODO: More elegantly handle failure to sign in.
               // print access denied feedback
               console.log("Access Denied: No Valid NFT");
             } else {
-              // valid NFT holders can play; change scene within Phaser
-              startGame(__user);
+              // pass NFT data onto processor funcs
+              compileNFT(__user, _data.result);
             }
           } else {
             // no valid NFT in possesion of user

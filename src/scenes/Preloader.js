@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { events, LOGIN_PLAYER } from "../App";
-
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
