@@ -1,13 +1,61 @@
 import Phaser from "phaser";
+import { createStore, applyMiddleware } from "redux";
+import thunkMiddleware from "redux-thunk";
+import { createLogger } from "redux-logger";
+
+// Phaser event emitter
+var emitter = new Phaser.Events.EventEmitter();
+
+// initial vars for game (optional)
+const initState = { player: {}, score: 0, nft: "", gameOver: false };
+
+// reducer
+function reducer(state = initState, action) {
+  switch (action.type) {
+    case LOAD_NFT:
+      emitter.emit("LOAD_NFT", action);
+      return { ...state };
+    default:
+      return state;
+  }
+}
+
+// event types
+export const LOAD_NFT = "LOAD_NFT";
+let valid_nft_image = "";
+
+// redux
+export const nftEvents = createStore(
+  reducer,
+  applyMiddleware(thunkMiddleware, createLogger())
+);
 
 export default class MainMenu extends Phaser.Scene {
   constructor() {
     super("MainMenu");
+
+    // 6.
+    // display image from metadata (demoNFTimageURL = event.nft) in game
+
+    // set-up an event handler for authenticated login
+    emitter.on("LOAD_NFT", (event) => {
+      // check user has signed-in; id exists
+      console.log("NFT:", event.nft);
+      valid_nft_image = event.nft;
+    });
+  }
+
+  // 7.
+  // in Phaser we need to load outside URL before displaying
+  preload() {
+    //this.load.image("validnft", valid_nft_image);
   }
 
   create() {
     this.add.image(512, 384, "title");
-
+    // 8.
+    // display valid NFT within game's mainmenu to demonstrate it worked
+    //this.add.image(512, 384, "validnft");
     let sign = this.add.image(512, -400, "logo");
 
     this.tweens.add({
