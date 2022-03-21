@@ -7,7 +7,8 @@
 Aim: Combine a framework that simplifies game development ([Phaser](https://phaser.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)) and one that simplifies web3 functionality ([Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)).
 
 These tutorial videos are a great introduction.<br/>
-Part 1: [Link to Moralis YouTube Video](https://youtu.be/Z4dWavvyhbA?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)<br/>
+Part 1: [Core Integration (YouTube Video)](https://youtu.be/Z4dWavvyhbA?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)<br/>
+Part 2: [NFT Power-ups (YouTube Video)](https://youtu.be/D-KW4_FgYj0?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)<br/>
 
 ## Quick Launch 🚀
 
