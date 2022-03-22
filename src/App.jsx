@@ -64,13 +64,14 @@ export const events = createStore(
 function App() {
   const { authenticate, isAuthenticated, user, logout } = useMoralis();
   const [loaded, setLoaded] = useState(false);
-  const [block, setBlock] = useState("100000"); // <-- example block height
 
   // TODO: right contract and interface with it via useweb3executefunction()
   // https://github.com/MoralisWeb3/react-moralis/#useweb3executefunction
 
   // test connection to a connected chain
   /* 
+  const [block, setBlock] = useState("100000"); // <-- example block height
+
   const Web3Api = useMoralisWeb3Api();
   const { fetch, _data } = useMoralisWeb3ApiCall(Web3Api.native.getBlock, {
     block_number_or_hash: block,
@@ -182,28 +183,23 @@ function App() {
           console.log("Nope");
           authEvents.dispatch({ type: AUTH, player: null });
           logout();
-          console.log("logged out");
+          console.log("User logged-out");
         } else {
           valid = _data.result.some(
             (elem) => elem.token_address === check_address
           );
 
-          console.log(valid);
+          // TODO: More elegantly handle failure to sign in.
+
           if (valid) {
             // valid NFT to allow access found
-            console.log("ACCESS GRANTED!", valid);
-
-            if (!valid) {
-              // TODO: More elegantly handle failure to sign in.
-              // print access denied feedback
-              console.log("Access Denied: No Valid NFT");
-            } else {
-              // pass NFT data onto processor funcs
-              compileNFT(__user, _data.result);
-            }
+            console.log("ACCESS GRANTED", valid);
+            // pass NFT data onto processor funcs
+            compileNFT(__user, _data.result);
           } else {
             // no valid NFT in possesion of user
-            console.log("ACCESS DENIED!");
+            // print access denied feedback
+            console.log("ACCESS DENIED: No Valid NFT");
           }
         }
       })
