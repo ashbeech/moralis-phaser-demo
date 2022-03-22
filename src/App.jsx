@@ -188,9 +188,7 @@ function App() {
           valid = _data.result.some(
             (elem) => elem.token_address === check_address
           );
-
           // TODO: More elegantly handle failure to sign in.
-
           if (valid) {
             // valid NFT to allow access found
             console.log("ACCESS GRANTED", valid);
