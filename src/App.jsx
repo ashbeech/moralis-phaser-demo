@@ -220,6 +220,7 @@ function App() {
             logout();
             console.log("logged out");
           } else {
+            // begin check: permission only if holds NFT from collection 0x…
             checkNFTBalance(_user);
           }
         })
