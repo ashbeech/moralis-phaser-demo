@@ -2,14 +2,13 @@ import Phaser from "phaser";
 import Boot from "./scenes/Boot.js";
 import Preloader, { authEvents, AUTH } from "./scenes/Preloader.js";
 import MainMenu, { nftEvents, LOAD_NFT } from "./scenes/MainMenu.js";
-// 6 load nft into main game
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 
-//6.
+// import for reading metadata json file
 import axios from "axios";
 
 import {
@@ -44,10 +43,12 @@ function reducer(state = initState, action) {
       return { ...state, score: action.score };
     case GAME_OVER:
       // emit Phaser game event to trigger on-chain
+      /* 
       game.events.emit(
         "BLOCK_CHECK",
         "Test Chain Connectivity: Check Some Block Data"
       );
+       */
       return { ...state, score: action.score, gameOver: true };
     default:
       return state;
@@ -122,8 +123,10 @@ function App() {
   let demoNFTimageURL = "";
   const getJSON = async (_metadata) => {
     try {
+      // grab remote json file (likely IPFS)
       await axios.get(_metadata).then((res) => {
         console.log("Initial Image URL:", res.data?.image);
+        // set URL
         demoNFTimageURL = res.data?.image;
         // if already is a moralis ipfs link, then skip further processing
         if (demoNFTimageURL.match("moralis")) {
@@ -150,10 +153,12 @@ function App() {
     await getJSON(nftMetadata[0]);
     console.log("Final NFT Image URL:", demoNFTimageURL);
 
-    // TODO: check valid metadata available
+    // TODO: further checks to validate metadata available
     if (demoNFTimageURL === "") {
     } else {
       // valid NFT holders can play; change scene within Phaser
+      // communicate that with Phaser component
+      // --> 6. is in MainMenu.js -->
       nftEvents.dispatch({ type: LOAD_NFT, nft: demoNFTimageURL });
       // start game
       startGame(___user, demoNFTimageURL);
@@ -284,7 +289,7 @@ function App() {
 
   return (
     <>
-      <pre style={{ color: "#FFF" }}>{JSON.stringify(user, null, 2)}</pre>
+      {/*<pre style={{ color: "#FFF" }}>{JSON.stringify(user, null, 2)}</pre>*/}
     </>
   );
 }

@@ -37,10 +37,11 @@ export default class MainMenu extends Phaser.Scene {
     // 6.
     // display image from metadata (demoNFTimageURL = event.nft) in game
 
-    // set-up an event handler for authenticated login
+    // set-up an event handler for loading a valid NFT
     emitter.on("LOAD_NFT", (event) => {
       // check user has signed-in; id exists
       console.log("NFT:", event.nft);
+      // set it for use later
       valid_nft_image = event.nft;
     });
   }
@@ -48,14 +49,15 @@ export default class MainMenu extends Phaser.Scene {
   // 7.
   // in Phaser we need to load outside URL before displaying
   preload() {
-    //this.load.image("validnft", valid_nft_image);
+    // set identifier as 'validnft' for image url
+    this.load.image("validnft", valid_nft_image);
   }
 
   create() {
     this.add.image(512, 384, "title");
     // 8.
     // display valid NFT within game's mainmenu to demonstrate it worked
-    //this.add.image(512, 384, "validnft");
+    this.add.image(512, 384, "validnft");
     let sign = this.add.image(512, -400, "logo");
 
     this.tweens.add({
