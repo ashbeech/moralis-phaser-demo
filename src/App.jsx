@@ -100,7 +100,7 @@ function App() {
 
   // 3.
   // declare contract address that the game deems valid; to allow access to a player
-  const check_address = "0x…"; // <-- enter your valid 'NFT collection' contract address
+  const check_address = "0xed34a7149b1a80c06e368354ac2b746807118f83"; // <-- enter your valid 'NFT collection' contract address
   const network_chain_id = "0x13881"; // <-- enter chain id you want to target
 
   //  NOTES:
