@@ -1,6 +1,6 @@
 # `Phaser x Moralis`
 
-![Build a Web3 game in minutes (Moralis x Phaser)](https://getyoutubethumbnail.com/thumbnails/Z4dWavvyhbA/maxresdefault.jpg)
+![Build a Web3 game in minutes (Moralis x Phaser)](https://i3.ytimg.com/vi/Z4dWavvyhbA/maxresdefault.jpg)
 
 ## About
 
