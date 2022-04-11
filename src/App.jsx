@@ -18,7 +18,7 @@ import {
 
 // P2E integration: 2. create ABI dir for P2E contracts
 //import { abi as tokenABI } from "./contracts/abis/GameToken.json";
-import * as tokenABI from "./contracts/abis/GameToken.json";
+import tokenABI from "./contracts/abis/GameToken.json";
 //import { abi as P2EABI } from "./contracts/abis/P2EGame.json";
 
 let game = null;
@@ -33,7 +33,7 @@ export const APPROVE = "APPROVE";
 export const UPDATE_SCORE = "UPDATE_SCORE";
 export const GAME_OVER = "GAME_OVER";
 
-const TOKEN_CONTRACT = "0x8e04737EFa4b3FBfEe20f6965032a949A7f4d0Cd"; //process.env.REACT_APP_TOKEN_CONTRACT;
+const TOKEN_CONTRACT = process.env.REACT_APP_TOKEN_CONTRACT;
 //const P2E_CONTRACT = process.env.REACT_APP_P2E_CONTRACT;
 
 // reducer
@@ -96,9 +96,11 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
-    console.log("web3 is enabled: ", isWeb3Enabled);
+    console.log("Web3 Enabled: ", isWeb3Enabled);
+    console.log("Authenticated: ", isAuthenticated);
+    console.log("Moralis Intialised:", isInitialized);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, isWeb3Enabled]);
+  }, [isWeb3Enabled, isAuthenticated, isInitialized]);
 
   // web3 interface
   const { fetch } = useWeb3ExecuteFunction();
@@ -106,7 +108,7 @@ function App() {
   // approve token (fungible)
   const approval = async () => {
     const options = {
-      abi: tokenABI,
+      abi: tokenABI.abi,
       contractAddress: TOKEN_CONTRACT,
       functionName: "approve",
       params: {
@@ -134,8 +136,6 @@ function App() {
         .then(function (_user) {
           console.log("logged in user:", _user);
           console.log(_user?.get("ethAddress"));
-          console.log("Moralis Intialised:", isInitialized);
-          console.log("Is Authenticated:", isAuthenticated);
           if (!_user) {
             // TODO: More elegantly handle failure to sign in.
             authEvents.dispatch({ type: AUTH, player: null });
