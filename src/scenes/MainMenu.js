@@ -3,7 +3,7 @@ import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 // P2E integration: 3. import event types to communicate with ReactJS app
-import { events, APPROVE } from "../App";
+import { events } from "../App";
 
 // Phaser event emitter
 var emitter = new Phaser.Events.EventEmitter();
@@ -17,17 +17,14 @@ function reducer(state = initState, action) {
     case LOAD_NFT:
       emitter.emit("LOAD_NFT", action);
       return { ...state };
-    case APPROVED:
-      emitter.emit("APPROVE", action);
-      return { ...state };
     default:
       return state;
   }
 }
 
 // event types
-export const APPROVED = "APPROVE";
 export const LOAD_NFT = "LOAD_NFT";
+export const STARTGAME = "STARTGAME";
 
 let valid_nft_image = "";
 
@@ -53,9 +50,9 @@ export default class MainMenu extends Phaser.Scene {
       valid_nft_image = event.nft;
     });
     */
-    emitter.on("APPROVED", (event) => {
+    emitter.on("STARTGAME", (event) => {
       // check user has signed-in; id exists
-      console.log("APPROVED:", event);
+      console.log("STARTGAME:", event);
       // check user has signed-in; id exists
       //if (!event.player?.id) {
       this.sound.stopAll();
@@ -119,7 +116,7 @@ export default class MainMenu extends Phaser.Scene {
 
     this.input.once("pointerdown", () => {
       // communicate with ReactJS app
-      events.dispatch({ type: APPROVE, score: 0 });
+      events.dispatch({ type: STARTGAME, score: 0 });
     });
   }
 }

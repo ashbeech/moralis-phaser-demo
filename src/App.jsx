@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import Boot from "./scenes/Boot.js";
 import Preloader, { authEvents, AUTH } from "./scenes/Preloader.js";
-import MainMenu, { mainMenuEvents, APPROVED } from "./scenes/MainMenu.js";
+import MainMenu, { mainMenuEvents, STARTGAME } from "./scenes/MainMenu.js";
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
@@ -17,7 +17,7 @@ import tokenABI from "./contracts/abis/GameToken.json";
 //import P2EABI from "./contracts/abis/P2EGame.json";
 
 // TODOS:
-// - Integrated GameToken contract funcs: approve.
+// - Integrated GameToken contract funcs: STARTGAME.
 // - Integrated P2E contract funcs: startGame, playerWon, playerLost.
 // - startGame, playerWon, playerLost feedback is reflected in UX/UI e.g. player token balance changes shown on screen, not just in MetaMask pop-up.
 // - Re-factored redux integration.
@@ -31,7 +31,7 @@ const initState = { player: {}, score: 0, nft: "", gameOver: false };
 export const GET_PLAYER = "GET_PLAYER";
 export const LOGIN_PLAYER = "LOGIN_PLAYER";
 // P2E integration: 3. set-up  comms to Phaser scripts
-export const APPROVE = "APPROVE";
+//export const STARTGAME = "STARTGAME";
 export const UPDATE_SCORE = "UPDATE_SCORE";
 export const GAME_OVER = "GAME_OVER";
 
@@ -47,8 +47,8 @@ function reducer(state = initState, action) {
       game.events.emit("LOGIN_PLAYER", "Login player");
       return { ...state, score: action.score };
     // P2E integration: 4. emit event to Phaser scripts
-    case APPROVE:
-      game.events.emit("APPROVE", "Player approves use of tokens");
+    case STARTGAME:
+      game.events.emit("STARTGAME", "Player STARTGAME");
       return { ...state, score: action.score };
     case UPDATE_SCORE:
       return { ...state, score: action.score };
@@ -78,11 +78,11 @@ function App() {
 
   const [loaded, setLoaded] = useState(false);
 
-  function startGame(_user) {
+  const startGame = async (_user) => {
     console.log("USER:", _user);
     // communicate to Phaser game that player is authenticated
-    authEvents.dispatch({ type: AUTH, player: _user });
-  }
+    await approval(_user);
+  };
 
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
@@ -95,22 +95,23 @@ function App() {
   // web3 interface
   const { fetch } = useWeb3ExecuteFunction();
 
-  // approve spend of token (fungible) into escrow
+  // STARTGAME spend of token (fungible) into escrow
   // result will be an allowance for the game to use once you start a game
-  const approval = async () => {
+  const approval = async (_user) => {
     const options = {
       abi: tokenABI.abi,
       contractAddress: TOKEN_CONTRACT,
       functionName: "approve",
       params: {
-        spender: "0x…", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. 0xd154B4D816FFF60893b92b6d418ef8aE5F505233
+        spender: "0x…", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. "0x…"/0xd154B4D816FFF60893b92b6d418ef8aE5F505233
         amount: "0", // <-- this is set to maximum allowance in ERC20 GameToken contract (not best practice)
       },
     };
 
     await fetch({
       params: options,
-      onSuccess: (response) => console.log("TOKEN APPROVE:", response),
+      onSuccess: (response) =>
+        authEvents.dispatch({ type: AUTH, player: _user }),
       onComplete: () => console.log("Fetched"),
       onError: (error) => console.log("Error", error),
     });
@@ -176,11 +177,13 @@ function App() {
         // trigger wallet authentication
         login();
       });
-      game.events.on("APPROVE", (event) => {
-        console.log("⛓⛓⛓ Approve funds via Web3 Wallet ⛓⛓⛓");
+      /*       
+      game.events.on("STARTGAME", (event) => {
+        console.log("⛓⛓⛓ STARTGAME funds via Web3 Wallet ⛓⛓⛓");
         // trigger approval via web3 wallet
         approval();
       });
+ */
     }
   }
 
