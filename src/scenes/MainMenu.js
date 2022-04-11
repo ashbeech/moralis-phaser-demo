@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
+// P2E integration: 3. import event types to communicate with ReactJS app
+import { events, APPROVE } from "../App";
 
 // Phaser event emitter
 var emitter = new Phaser.Events.EventEmitter();
@@ -15,13 +17,18 @@ function reducer(state = initState, action) {
     case LOAD_NFT:
       emitter.emit("LOAD_NFT", action);
       return { ...state };
+    case APPROVED:
+      emitter.emit("APPROVE", action);
+      return { ...state };
     default:
       return state;
   }
 }
 
 // event types
+export const APPROVED = "APPROVE";
 export const LOAD_NFT = "LOAD_NFT";
+
 let valid_nft_image = "";
 
 // redux
@@ -38,11 +45,23 @@ export default class MainMenu extends Phaser.Scene {
     // display image from metadata (demoNFTimageURL = event.nft) in game
 
     // set-up an event handler for loading a valid NFT
+    /*
     emitter.on("LOAD_NFT", (event) => {
       // check user has signed-in; id exists
       console.log("NFT:", event.nft);
       // set it for use later
       valid_nft_image = event.nft;
+    });
+    */
+    emitter.on("APPROVED", (event) => {
+      // check user has signed-in; id exists
+      console.log("APPROVED:", event);
+      // check user has signed-in; id exists
+      //if (!event.player?.id) {
+      this.sound.stopAll();
+      this.sound.play("shot");
+      this.scene.start("MainGame");
+      //}
     });
   }
 
@@ -50,14 +69,14 @@ export default class MainMenu extends Phaser.Scene {
   // in Phaser we need to load outside URL before displaying
   preload() {
     // set identifier as 'validnft' for image url
-    this.load.image("validnft", valid_nft_image);
+    //this.load.image("validnft", valid_nft_image);
   }
 
   create() {
     this.add.image(512, 384, "title");
     // 8.
     // display valid NFT within game's mainmenu to demonstrate it worked
-    this.add.image(512, 384, "validnft");
+    //this.add.image(512, 384, "validnft");
     let sign = this.add.image(512, -400, "logo");
 
     this.tweens.add({
@@ -99,11 +118,8 @@ export default class MainMenu extends Phaser.Scene {
     this.music = this.sound.play("music", { loop: true });
 
     this.input.once("pointerdown", () => {
-      this.sound.stopAll();
-
-      this.sound.play("shot");
-
-      this.scene.start("MainGame");
+      // communicate with ReactJS app
+      events.dispatch({ type: APPROVE, score: 0 });
     });
   }
 }
