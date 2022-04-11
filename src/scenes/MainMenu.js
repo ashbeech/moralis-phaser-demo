@@ -32,7 +32,7 @@ export const LOAD_NFT = "LOAD_NFT";
 let valid_nft_image = "";
 
 // redux
-export const nftEvents = createStore(
+export const mainMenuEvents = createStore(
   reducer,
   applyMiddleware(thunkMiddleware, createLogger())
 );
