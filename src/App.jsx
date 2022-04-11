@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import Boot from "./scenes/Boot.js";
 import Preloader, { authEvents, AUTH } from "./scenes/Preloader.js";
-import MainMenu, { mainMenuEvents, STARTGAME } from "./scenes/MainMenu.js";
+import MainMenu, { STARTGAME } from "./scenes/MainMenu.js";
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";

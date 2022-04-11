@@ -88,25 +88,6 @@ const getJSON = async (_metadata) => {
   }
 };
 
-// 5.
-// processor NFT metadata to locate renderable image data
-const compileNFT = async (___user, __data) => {
-  await findNFTMetadata(__data);
-  await getJSON(nftMetadata[0]);
-  console.log("Final NFT Image URL:", demoNFTimageURL);
-
-  // TODO: further checks to validate metadata available
-  if (demoNFTimageURL === "") {
-  } else {
-    // valid NFT holders can play; change scene within Phaser
-    // communicate that with Phaser component
-    // --> 6. is in MainMenu.js -->
-    nftEvents.dispatch({ type: LOAD_NFT, nft: demoNFTimageURL });
-    // start game
-    startGame(___user);
-  }
-};
-
 // 4.
 // check user's balance for token contract address matching above
 const checkNFTBalance = async (__user) => {
@@ -152,6 +133,25 @@ const checkNFTBalance = async (__user) => {
 // begin check: permission only if holds NFT from collection 0x…
 //checkNFTBalance(_user);
 
+// 5.
+// processor NFT metadata to locate renderable image data
+const compileNFT = async (___user, __data) => {
+  await findNFTMetadata(__data);
+  await getJSON(nftMetadata[0]);
+  console.log("Final NFT Image URL:", demoNFTimageURL);
+
+  // TODO: further checks to validate metadata available
+  if (demoNFTimageURL === "") {
+  } else {
+    // valid NFT holders can play; change scene within Phaser
+    // communicate that with Phaser component
+    // --> 6. is in MainMenu.js -->
+    nftEvents.dispatch({ type: LOAD_NFT, nft: demoNFTimageURL });
+    // start game
+    startGame(___user);
+  }
+};
+
 // TODO: add logout functionality within Phaser game UI/UX
 /*
   const logOut = async () => {
@@ -159,3 +159,53 @@ const checkNFTBalance = async (__user) => {
     console.log("logged out");
   };
   */
+
+// ---
+
+// place inside MainMenu.js
+
+// reducer
+function reducer(state = initState, action) {
+  switch (action.type) {
+    case LOAD_NFT:
+      emitter.emit("LOAD_NFT", action);
+      return { ...state };
+    case STARTGAME:
+      emitter.emit("STARTGAME", action);
+      return { ...state };
+    default:
+      return state;
+  }
+}
+
+// event types
+export const LOAD_NFT = "LOAD_NFT";
+let valid_nft_image = "";
+
+// place inside MainMenu.js constructor()
+
+// 6.
+// display image from metadata (demoNFTimageURL = event.nft) in game
+
+// set-up an event handler for loading a valid NFT
+/*
+    emitter.on("LOAD_NFT", (event) => {
+      // check user has signed-in; id exists
+      console.log("NFT:", event.nft);
+      // set it for use later
+      valid_nft_image = event.nft;
+    });
+    */
+
+  // 7.
+  // in Phaser we need to load outside URL before displaying
+  preload() {
+    // set identifier as 'validnft' for image url
+    this.load.image("validnft", valid_nft_image);
+  }
+
+  create() {
+    this.add.image(512, 384, "title");
+    // 8.
+    // display valid NFT within game's mainmenu to demonstrate it worked
+    this.add.image(512, 384, "validnft");
