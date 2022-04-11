@@ -7,19 +7,21 @@ import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
-// import for reading metadata json file
-import axios from "axios";
-
 import {
   useMoralis,
   // P2E integration: 1. import Moralis func for contracts
   useWeb3ExecuteFunction,
 } from "react-moralis";
-
 // P2E integration: 2. create ABI dir for P2E contracts
-//import { abi as tokenABI } from "./contracts/abis/GameToken.json";
 import tokenABI from "./contracts/abis/GameToken.json";
-//import { abi as P2EABI } from "./contracts/abis/P2EGame.json";
+//import P2EABI from "./contracts/abis/P2EGame.json";
+
+// TODOS:
+// - Integrated GameToken contract funcs: approve.
+// - Integrated P2E contract funcs: startGame, playerWon, playerLost.
+// - startGame, playerWon, playerLost feedback is reflected in UX/UI e.g. player token balance changes shown on screen, not just in MetaMask pop-up.
+// - Re-factored redux integration.
+// - More elegantly handled user's failure to sign in.
 
 let game = null;
 
@@ -51,13 +53,6 @@ function reducer(state = initState, action) {
     case UPDATE_SCORE:
       return { ...state, score: action.score };
     case GAME_OVER:
-      // emit Phaser game event to trigger on-chain
-      /* 
-      game.events.emit(
-        "BLOCK_CHECK",
-        "Test Chain Connectivity: Check Some Block Data"
-      );
-       */
       return { ...state, score: action.score, gameOver: true };
     default:
       return state;
@@ -72,18 +67,13 @@ export const events = createStore(
 
 function App() {
   const {
-    initialize,
     isInitialized,
     authenticate,
     isAuthenticated,
-    user,
     logout,
-    Moralis,
-    web3,
     enableWeb3,
     isWeb3Enabled,
     isWeb3EnableLoading,
-    web3EnableError,
   } = useMoralis();
 
   const [loaded, setLoaded] = useState(false);
@@ -105,15 +95,16 @@ function App() {
   // web3 interface
   const { fetch } = useWeb3ExecuteFunction();
 
-  // approve token (fungible)
+  // approve spend of token (fungible) into escrow
+  // result will be an allowance for the game to use once you start a game
   const approval = async () => {
     const options = {
       abi: tokenABI.abi,
       contractAddress: TOKEN_CONTRACT,
       functionName: "approve",
       params: {
-        spender: "0xd154B4D816FFF60893b92b6d418ef8aE5F505233",
-        amount: "0",
+        spender: "0x…", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. 0xd154B4D816FFF60893b92b6d418ef8aE5F505233
+        amount: "0", // <-- this is set to maximum allowance in ERC20 GameToken contract (not best practice)
       },
     };
 
@@ -131,7 +122,6 @@ function App() {
       console.log("Is Web3 Enabled:", isWeb3Enabled);
       await authenticate({
         signingMessage: "Log in using Moralis",
-        //,   onComplete: () => alert("🎉"),
       })
         .then(function (_user) {
           console.log("logged in user:", _user);
@@ -155,7 +145,7 @@ function App() {
     setLoaded(true);
     const config = {
       type: Phaser.AUTO,
-      //gameTitle: "Phaser x Moralis",
+      gameTitle: "P2E Bank Panic | Phaser x Moralis",
       parent: "game-container",
       autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
       autoFocus: true,
@@ -192,14 +182,6 @@ function App() {
         approval();
       });
     }
-    /*     
-    // when GAME_OVER interact with chain
-    game.events.on("BLOCK_CHECK", (event) => {
-      console.log("⛓⛓⛓ Game Event Triggered Web3 Func ⛓⛓⛓");
-      // trigger fetching of on-chain data to test connection
-      fetch();
-    });
-    */
   }
 
   return (

@@ -1,3 +1,7 @@
+// code from App.jsx to re-insert at later date
+
+// import for reading metadata json file
+import axios from "axios";
 import MainMenu, { nftEvents, LOAD_NFT, APPROVED } from "./scenes/MainMenu.js";
 import {
   useMoralis,
