@@ -50,6 +50,7 @@ contract P2EGame is Ownable {
     // transfer from player to the contract's address to be locked in escrow
     token.transferFrom(msg.sender, address(this), _amount);
     
+    // balance
     totalBalance += _amount;
 
     balances[msg.sender][_gameId].amount = _amount;
