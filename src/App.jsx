@@ -103,7 +103,7 @@ function App() {
       contractAddress: TOKEN_CONTRACT,
       functionName: "approve",
       params: {
-        spender: "0x…", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. "0x…"/0xd154B4D816FFF60893b92b6d418ef8aE5F505233
+        spender: "0xd154B4D816FFF60893b92b6d418ef8aE5F505233", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. "0x…"/0xd154B4D816FFF60893b92b6d418ef8aE5F505233
         amount: "0", // <-- this is set to maximum allowance in ERC20 GameToken contract (not best practice)
       },
     };

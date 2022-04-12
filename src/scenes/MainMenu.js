@@ -40,9 +40,9 @@ export default class MainMenu extends Phaser.Scene {
       console.log("STARTGAME:", event);
       // check user has signed-in; id exists
       //if (!event.player?.id) {
-      this.sound.stopAll();
-      this.sound.play("shot");
-      this.scene.start("MainGame");
+      //this.sound.stopAll();
+      //this.sound.play("shot");
+      //this.scene.start("MainGame");
       //}
     });
   }
@@ -93,8 +93,11 @@ export default class MainMenu extends Phaser.Scene {
     this.music = this.sound.play("music", { loop: true });
 
     this.input.once("pointerdown", () => {
+      this.sound.stopAll();
+      this.sound.play("shot");
+      this.scene.start("MainGame");
       // communicate with ReactJS app
-      events.dispatch({ type: STARTGAME, score: 0 });
+      //events.dispatch({ type: STARTGAME, score: 0 });
     });
   }
 }

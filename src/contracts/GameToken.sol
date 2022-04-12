@@ -19,6 +19,7 @@ contract GameToken is Context, Ownable, ERC20 {
         _mint(msg.sender, 100 * (10**uint256(decimals())));
     }
 
+    // player must approve allowance for escrow/P2EGame contract to use (spender)
     function approve(address spender, uint256 amount)
         public
         virtual
@@ -26,7 +27,7 @@ contract GameToken is Context, Ownable, ERC20 {
         returns (bool)
     {
         address owner = _msgSender();
-        amount = 100 * (10**uint256(decimals()));
+        amount = 100 * (10**uint256(decimals())); // <-- 100 by deafault which is total supply (max)
         // amount = max possible to allow for better player UX (don't have to approve every time)
         _approve(owner, spender, amount);
         return true;
