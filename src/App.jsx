@@ -37,7 +37,7 @@ export const UPDATE_SCORE = "UPDATE_SCORE";
 export const GAME_OVER = "GAME_OVER";
 
 const TOKEN_CONTRACT = process.env.REACT_APP_TOKEN_CONTRACT;
-//const P2E_CONTRACT = process.env.REACT_APP_P2E_CONTRACT;
+const P2E_CONTRACT = process.env.REACT_APP_P2E_CONTRACT;
 
 // reducer
 function reducer(state = initState, action) {
@@ -104,7 +104,7 @@ function App() {
       contractAddress: TOKEN_CONTRACT,
       functionName: "approve",
       params: {
-        spender: "0xd154B4D816FFF60893b92b6d418ef8aE5F505233", // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS e.g. "0x…"/0xd154B4D816FFF60893b92b6d418ef8aE5F505233
+        spender: P2E_CONTRACT, // <-- INSERT DEPLOYED P2E CONTRACT ADDRESS AKA ESCROW CONTRACT
         amount: "0", // <-- this is set to maximum allowance in ERC20 GameToken contract (not best practice)
       },
     };
