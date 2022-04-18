@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { createStore, applyMiddleware } from "redux";
 import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
+import { Moralis } from "moralis";
 import {
   useMoralis,
   // P2E integration: 1. import Moralis func for contracts
@@ -14,18 +15,18 @@ import {
 } from "react-moralis";
 // P2E integration: 2. create ABI dir for P2E contracts
 import tokenABI from "./contracts/abis/GameToken.json";
-//import P2EABI from "./contracts/abis/P2EGame.json";
+//import P2EABI from "./contracts/abis/P2EGame.json"; // <--  likely don't need on client-side as Cloud Functions will handle
 
 // TODOS:
-// - Integrated GameToken contract funcs: STARTGAME.
-// - Integrated P2E contract funcs: startGame, playerWon, playerLost.
-// - startGame, playerWon, playerLost feedback is reflected in UX/UI e.g. player token balance changes shown on screen, not just in MetaMask pop-up.
-// - Re-factored redux integration.
-// - More elegantly handled user's failure to sign in.
+// * Integrated GameToken contract funcs: STARTGAME.
+// * Integrated P2E contract funcs: startGame, playerWon, playerLost.
+// * startGame, playerWon, playerLost feedback is reflected in UX/UI e.g. player token balance changes shown on screen, not just in MetaMask pop-up.
+// * Re-factored redux integration.
+// * More elegantly handled user's failure to sign in.
 
 let game = null;
 
-const initState = { player: {}, score: 0, nft: "", gameOver: false };
+const initState = { gameId: 0, player: {}, score: 0, nft: "", gameOver: false };
 
 //event types
 export const GET_PLAYER = "GET_PLAYER";
@@ -117,6 +118,20 @@ function App() {
     });
   };
 
+  // WINGAME spend of token (fungible) from escrow (+winnings)
+  // result will be value transferred to player
+  const win = async (_params) => {
+    // init Moralis API web3 interface
+    const web3 = await Moralis.enableWeb3();
+    // run cloud function: activate admin bot account
+    const signedTransaction = await Moralis.Cloud.run("playerWon", _params);
+    const fulfillTx = await web3.eth.sendSignedTransaction(
+      signedTransaction.rawTransaction
+    );
+    // test transaction feedback
+    console.log(fulfillTx);
+  };
+
   const login = async () => {
     if (!isAuthenticated) {
       await enableWeb3();
@@ -177,13 +192,30 @@ function App() {
         // trigger wallet authentication
         login();
       });
-      /*       
-      game.events.on("STARTGAME", (event) => {
-        console.log("⛓⛓⛓ STARTGAME funds via Web3 Wallet ⛓⛓⛓");
-        // trigger approval via web3 wallet
-        approval();
+
+      game.events.on("GAME_OVER", (event) => {
+        console.log("Game Over: State Updated");
+        /*
+        // WIP: When GAME_OVER event triggered from within Phaser scene:  state checked for end states (win/lose).
+        if (initState.gameId && initState.state === "win") {
+          // 
+          // set-up params
+          const params = {
+            gameId: initState.gameId,
+            player: initState.player.address,
+            winnings: initState.score,
+          };
+          win();
+        }
+        */
       });
- */
+
+      game.events.on("STARTGAME", (event) => {
+        console.log("STARTGAME");
+        // TODO: set initial game state
+        // * gameId, etc
+        // * run cloud function for admin bot to move funcs to  escrow
+      });
     }
   }
 

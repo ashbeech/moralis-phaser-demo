@@ -2,7 +2,7 @@
 
 // import for reading metadata json file
 import axios from "axios";
-import MainMenu, { nftEvents, LOAD_NFT, APPROVED } from "./scenes/MainMenu.js";
+import MainMenu, { nftEvents, LOAD_NFT, APPROVED } from "../../scenes/MainMenu.js";
 import {
   useMoralis,
   // 1.
