@@ -8,11 +8,11 @@ contract P2EGame is Ownable {
     // admin address
     address private admin;
     // balance of tokens held in escrow
-    uint256 public escrowBalance;
+    uint256 public balance;
     // this is the erc20 GameToken contract address
     address constant tokenAddress = 0x8d85a9492605FD5768883AbC5015a2019BED862E; // <-- INSERT DEPLYED ERC20 TOKEN CONTRACT HERE
-    uint256 public maxSupply = 100000000000000000000; // <-- currently set manually for flexibility while in pre-alpha development
-    uint256 public unit = 1000000000000000000; // <-- currently set manually for flexibility while in pre-alpha development
+    uint256 public maxSupply = 100000000000000000000; // 100 <-- temporarily set manually for flexibility while in pre-alpha development
+    uint256 public unit = 1000000000000000000; // 1 <-- temporarily set manually for flexibility while in pre-alpha development
     uint256 public gameId;
 
     // game data tracking
@@ -83,13 +83,13 @@ contract P2EGame is Ownable {
         token.transferFrom(_player, address(this), _p);
 
         // escrow balance
-        escrowBalance += (_p + _t);
+        balance += (_p + _t);
 
         // iterate game identifier
         gameId++;
 
         // init game data
-        balances[_player][gameId].balance = escrowBalance;
+        balances[_player][gameId].balance = balance;
         balances[_player][gameId].treasury = _treasury;
         balances[_player][gameId].locked = true;
         balances[_player][gameId].spent = false;
@@ -121,7 +121,7 @@ contract P2EGame is Ownable {
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        escrowBalance -= balances[_player][_gameId].balance;
+        balance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
@@ -142,7 +142,7 @@ contract P2EGame is Ownable {
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        escrowBalance -= balances[_player][_gameId].balance;
+        balance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
@@ -164,7 +164,7 @@ contract P2EGame is Ownable {
         token.transfer(msg.sender, balances[msg.sender][_gameId].balance);
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
         // amend escrow balance
-        escrowBalance -= balances[msg.sender][_gameId].balance;
+        balance -= balances[msg.sender][_gameId].balance;
         // set game balance to spent
         balances[msg.sender][_gameId].spent = true;
         return true;
