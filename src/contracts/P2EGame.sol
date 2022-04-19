@@ -7,19 +7,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract P2EGame is Ownable {
     // admin address
     address private admin;
+    // balance of tokens held in escrow
+    uint256 public escrowBalance;
     // this is the erc20 GameToken contract address
-    address constant tokenAddress = 0x8e04737EFa4b3FBfEe20f6965032a949A7f4d0Cd; // <-- INSERT DEPLYED ERC20 TOKEN CONTRACT HERE
+    address constant tokenAddress = 0x8d85a9492605FD5768883AbC5015a2019BED862E; // <-- INSERT DEPLYED ERC20 TOKEN CONTRACT HERE
     uint256 public maxSupply;
     uint256 public unit;
-    uint256 public total;
-    // balance of tokens held in escrow
-    uint256 public balance;
+    uint256 public gameId;
 
     // game data tracking
     struct Game {
-        uint256 id;
         address treasury;
-        uint256 amount;
+        uint256 balance;
         bool locked;
         bool spent;
     }
@@ -40,6 +39,7 @@ contract P2EGame is Ownable {
      */
     constructor() {
         admin = msg.sender;
+        gameId = 0;
     }
 
     // retrieve current state of game funds in escrow
@@ -53,7 +53,7 @@ contract P2EGame is Ownable {
         )
     {
         return (
-            balances[_player][_gameId].amount,
+            balances[_player][_gameId].balance,
             balances[_player][_gameId].locked,
             balances[_player][_gameId].treasury
         );
@@ -62,60 +62,60 @@ contract P2EGame is Ownable {
     // admin starts game
     // staked tokens get moved to the escrow (this contract)
     function startGame(
-        uint256 _gameId,
         address _player,
         address _treasury,
-        uint256 _p_amount,
-        uint256 _t_amount
-    ) external onlyAdmin returns (uint256) {
+        uint256 _p,
+        uint256 _t
+    ) external returns (uint256) {
         GameToken token = GameToken(tokenAddress);
         unit = token.unit();
         // approve contract to spend amount tokens
         // NOTE: this approval method doesn't work and player must approve token contract directly
-        //require(token.approve(address(this), _amount), "P2EGame: approval has failed");
+        //require(token.approve(address(this), _balance), "P2EGame: approval has failed");
         // must include amount >1 token (1000000000000000000)
-        require(
-            _t_amount >= unit,
-            "P2EGame: treasury must insert 1 or  more tokens"
-        );
-        require(_p_amount >= unit, "P2EGame: player must insert 1 whole token");
+        require(_p >= unit, "P2EGame: must insert 1 whole token");
+        require(_t >= unit, "P2EGame: must insert more than 1 token");
         // transfer from player to the contract's address to be locked in escrow
-        token.transferFrom(_player, address(this), _p_amount);
-        token.transferFrom(_treasury, address(this), _t_amount);
-        // player stake + treasury stake
-        total = _p_amount + _t_amount;
-        // balance
-        balance += total;
+        token.transferFrom(msg.sender, address(this), _t);
+        token.transferFrom(_player, address(this), _p);
 
-        balances[_player][_gameId].amount = total;
-        balances[_player][_gameId].treasury = _treasury;
-        balances[_player][_gameId].locked = true;
-        balances[_player][_gameId].spent = false;
+        // balance
+        escrowBalance += (_p + _t);
+
+        // iterate game identifier
+        gameId++;
+
+        // init game data
+        balances[_player][gameId].balance = escrowBalance;
+        balances[_player][gameId].treasury = _treasury;
+        balances[_player][gameId].locked = true;
+        balances[_player][gameId].spent = false;
+
         return token.balanceOf(_player);
     }
 
     // admin unlocks tokens in escrow once game's outcome decided
-    function playerWon(
-        uint256 _gameId,
-        address _player,
-        uint256 _winnings
-    ) external onlyAdmin returns (bool) {
+    function playerWon(uint256 _gameId, address _player)
+        external
+        onlyAdmin
+        returns (bool)
+    {
         GameToken token = GameToken(tokenAddress);
         maxSupply = token.maxSupply();
         // allows player to withdraw
         balances[_player][_gameId].locked = false;
         // validate winnings
-        require(_winnings < maxSupply, "P2EGame: winnings exceed max supply");
+        require(
+            balances[_player][_gameId].balance < maxSupply,
+            "P2EGame: winnings exceed max supply"
+        );
         // final winnings = balance locked in escrow + in-game winnings
-        balances[_player][_gameId].amount =
-            balances[_player][_gameId].amount +
-            _winnings;
         // transfer to player the final winnings
-        token.transfer(_player, _winnings);
+        token.transfer(_player, balances[_player][_gameId].balance);
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        balance -= balances[_player][_gameId].amount;
+        escrowBalance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
@@ -131,12 +131,12 @@ contract P2EGame is Ownable {
         // transfer to treasury the balance locked in escrow
         token.transfer(
             balances[_player][_gameId].treasury,
-            balances[_player][_gameId].amount
+            balances[_player][_gameId].balance
         );
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        balance -= balances[_player][_gameId].amount;
+        escrowBalance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
@@ -155,10 +155,10 @@ contract P2EGame is Ownable {
 
         GameToken token = GameToken(tokenAddress);
         // transfer to player of game (msg.sender) the value locked in escrow
-        token.transfer(msg.sender, balances[msg.sender][_gameId].amount);
+        token.transfer(msg.sender, balances[msg.sender][_gameId].balance);
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
         // amend escrow balance
-        balance -= balances[msg.sender][_gameId].amount;
+        escrowBalance -= balances[msg.sender][_gameId].balance;
         // set game balance to spent
         balances[msg.sender][_gameId].spent = true;
         return true;
