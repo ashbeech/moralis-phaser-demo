@@ -80,11 +80,11 @@ contract P2EGame is Ownable {
         // balance
         escrowBalance += _amount;
 
-        balances[msg.sender][_gameId].amount = _amount;
-        balances[msg.sender][_gameId].treasury = _treasury;
-        balances[msg.sender][_gameId].locked = true;
-        balances[msg.sender][_gameId].spent = false;
-        return token.balanceOf(msg.sender);
+        balances[_player][_gameId].amount = _amount;
+        balances[_player][_gameId].treasury = _treasury;
+        balances[_player][_gameId].locked = true;
+        balances[_player][_gameId].spent = false;
+        return token.balanceOf(_player);
     }
 
     // admin unlocks tokens in escrow once game's outcome decided
