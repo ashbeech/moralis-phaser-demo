@@ -62,8 +62,10 @@ contract P2EGame is Ownable {
     // staked tokens get moved to the escrow (this contract)
     function startGame(
         uint256 _gameId,
+        address _player,
         address _treasury,
-        uint256 _amount
+        uint256 _p_amount,
+        uint256 _t_amount
     ) external onlyAdmin returns (uint256) {
         GameToken token = GameToken(tokenAddress);
         unit = token.unit();
@@ -73,8 +75,8 @@ contract P2EGame is Ownable {
         // must include amount >1 token (1000000000000000000)
         require(_amount >= unit, "P2EGame: must insert 1 whole token");
         // transfer from player to the contract's address to be locked in escrow
-        token.transferFrom(msg.sender, address(this), _amount);
-
+        token.transferFrom(_player, address(this), _p_amount);
+        token.transferFrom(_treasury, address(this), _t_amount);
         // balance
         escrowBalance += _amount;
 

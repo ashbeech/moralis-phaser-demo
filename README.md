@@ -4,6 +4,8 @@
 
 ## About
 
+### WARNING: ACTIVE WORK IN PROGRESS; CODE CURRENTLY PRE-ALPHA STAGE.
+
 Aim: Combine a framework that simplifies game development ([Phaser](https://phaser.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)) and one that simplifies web3 functionality ([Moralis](https://moralis.io?utm_source=ashbeech&utm_medium=readme&utm_campaign=moralis-magazine)).
 
 These tutorial videos are a great introduction.<br/>

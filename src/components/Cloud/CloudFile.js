@@ -41,3 +41,35 @@ Moralis.Cloud.define("playerWon", async (request) => {
   );
   return signedTransaction;
 });
+
+Moralis.Cloud.define("playerLost", async (request) => {
+  // params from clientside
+  /*
+    const params = {
+        gameId: initState.gameId,
+        player: initState.player.address,
+        winnings: initState.score,
+    };
+    */
+  // params on serverside
+  /*
+    const gameId = request.params.gameId;
+    const player = request.params.player;
+    const winnings = request.params.winnings;
+    const params = request.params
+    */
+
+  const functionCall = adminBot.methods.playerLost(request.params).encodeABI();
+  transactionBody = {
+    to: p2e_contract_address,
+    //nonce: nonceOperator,
+    data: functionCall,
+    gas: 30000,
+    gasPrice: web3.utils.toWei("30000", "gwei"),
+  };
+  signedTransaction = await web3.eth.accounts.signTransaction(
+    transactionBody,
+    adminBotKey
+  );
+  return signedTransaction;
+});
