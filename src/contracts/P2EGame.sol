@@ -11,8 +11,8 @@ contract P2EGame is Ownable {
     uint256 public escrowBalance;
     // this is the erc20 GameToken contract address
     address constant tokenAddress = 0x8d85a9492605FD5768883AbC5015a2019BED862E; // <-- INSERT DEPLYED ERC20 TOKEN CONTRACT HERE
-    uint256 public maxSupply;
-    uint256 public unit;
+    uint256 public maxSupply = 100000000000000000000; // <-- currently set manually for flexibility while in pre-alpha development
+    uint256 public unit = 1000000000000000000; // <-- currently set manually for flexibility while in pre-alpha development
     uint256 public gameId;
 
     // game data tracking
@@ -24,6 +24,8 @@ contract P2EGame is Ownable {
     }
     // map game to balances
     mapping(address => mapping(uint256 => Game)) public balances;
+    // set-up event for emitting once character minted to read out values
+    event NewGame(address indexed player, uint256 id);
 
     // only admin account can unlock escrow
     modifier onlyAdmin() {
@@ -61,14 +63,15 @@ contract P2EGame is Ownable {
 
     // admin starts game
     // staked tokens get moved to the escrow (this contract)
-    function startGame(
+    function createGame(
         address _player,
         address _treasury,
         uint256 _p,
         uint256 _t
-    ) external returns (uint256) {
+    ) external onlyAdmin returns (bool) {
         GameToken token = GameToken(tokenAddress);
-        unit = token.unit();
+        //unit = token.unit();
+
         // approve contract to spend amount tokens
         // NOTE: this approval method doesn't work and player must approve token contract directly
         //require(token.approve(address(this), _balance), "P2EGame: approval has failed");
@@ -79,7 +82,7 @@ contract P2EGame is Ownable {
         token.transferFrom(msg.sender, address(this), _t);
         token.transferFrom(_player, address(this), _p);
 
-        // balance
+        // escrow balance
         escrowBalance += (_p + _t);
 
         // iterate game identifier
@@ -91,7 +94,9 @@ contract P2EGame is Ownable {
         balances[_player][gameId].locked = true;
         balances[_player][gameId].spent = false;
 
-        return token.balanceOf(_player);
+        emit NewGame(_player, gameId);
+
+        return true;
     }
 
     // admin unlocks tokens in escrow once game's outcome decided
@@ -101,13 +106,14 @@ contract P2EGame is Ownable {
         returns (bool)
     {
         GameToken token = GameToken(tokenAddress);
-        maxSupply = token.maxSupply();
+        //maxSupply = token.maxSupply();
+
         // allows player to withdraw
         balances[_player][_gameId].locked = false;
         // validate winnings
         require(
             balances[_player][_gameId].balance < maxSupply,
-            "P2EGame: winnings exceed max supply"
+            "P2EGame: winnings exceed balance in escrow"
         );
         // final winnings = balance locked in escrow + in-game winnings
         // transfer to player the final winnings

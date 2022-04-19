@@ -7,7 +7,7 @@
 // * adminBotKey not stored in file: stored via secure custodian and accessed through their API.
 
 const web3 = Moralis.web3ByChain("0x13881"); // Mumbai Testnet
-const p2e_contract_address = "0xd154B4D816FFF60893b92b6d418ef8aE5F505233"; // Deployed P2EGame.sol contract
+const p2e_contract_address = "0xB53D00eD7601a090867A75463428a6940fACdc39"; // Deployed P2EGame.sol contract
 const p2e_abi = []; // P2EGame.sol contract ABI
 const adminBotKey = "INSERT_PRIVATE_KEY"; // <-- CRITICAL WARNING: DO NOT INCLUDE IF THIS FILE WILL BE UNECRYPTED OR IN PUBLIC DIR ON LIVE SERVER
 const adminBot = new web3.eth.Contract(p2e_abi, p2e_contract_address);

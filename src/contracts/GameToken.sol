@@ -25,15 +25,6 @@ contract GameToken is Context, Ownable, ERC20 {
     }
 
     /**
-     * @dev Constructor that gives _msgSender() all of existing tokens.
-     */
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
-        admin = msg.sender;
-        // init circulation
-        mint();
-    }
-
-    /**
      * @dev Returns max supply of the token.
      */
     function maxSupply() public view returns (uint256) {
@@ -41,10 +32,19 @@ contract GameToken is Context, Ownable, ERC20 {
     }
 
     /**
-     * @dev Returns max supply of the token.
+     * @dev Returns single unit of account.
      */
     function unit() public view returns (uint256) {
         return _unit;
+    }
+
+    /**
+     * @dev Constructor that gives _msgSender() all of existing tokens.
+     */
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        admin = msg.sender;
+        // init circulation
+        mint();
     }
 
     function mint() public onlyAdmin {
