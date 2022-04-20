@@ -1,4 +1,4 @@
-const p2e_contract_address = "0x7053c8dB1c4ED4C96c47E322A8517BcAeE4ECaE5"; // Deployed P2EGame.sol contract
+const p2e_contract_address = "0x7053c8dB1c4ED4C96c47E322A8517BcAeE4ECaE5"; // deployed P2EGame.sol contract
 const p2e_abi = [
   {
     inputs: [
@@ -312,14 +312,12 @@ const web3Speedy = new Moralis.Web3(
     "https://speedy-nodes-nyc.moralis.io/2f9030e63c6503c12a1e7340/polygon/mumbai"
   )
 );
-//const adminBotAccount = web3.eth.accounts.wallet.add(adminBotK);
-//const adminBot = new web3.eth.Contract(p2e_abi, p2e_contract_address);
 
-const MainBridge = new web3Speedy.eth.Contract(p2e_abi, p2e_contract_address);
+const adminBot = new web3Speedy.eth.Contract(p2e_abi, p2e_contract_address);
 
 Moralis.Cloud.define("createGame", async (request) => {
-  logger.info("--- Starting Game ---");
-  const functionCall = MainBridge.methods
+  logger.info("--- Starting A Game ---");
+  const functionCall = adminBot.methods
     .createGame(
       request.params._player,
       request.params._treasury,
@@ -347,8 +345,8 @@ Moralis.Cloud.define("createGame", async (request) => {
 
 Moralis.Cloud.define("playerLost", async (request) => {
   logger.info("--- Player Lost ---");
-  const functionCall = MainBridge.methods
-    .playerLost(request.params._player, request.params._gameId)
+  const functionCall = adminBot.methods
+    .playerLost(request.params._gameId, request.params._player)
     .encodeABI();
   const transactionBody = {
     to: p2e_contract_address,
@@ -370,7 +368,7 @@ Moralis.Cloud.define("playerLost", async (request) => {
 
 Moralis.Cloud.define("playerWon", async (request) => {
   logger.info("--- Player Won ---");
-  const functionCall = MainBridge.methods
+  const functionCall = adminBot.methods
     .playerWon(request.params._gameId, request.params._player)
     .encodeABI();
   const transactionBody = {
@@ -392,7 +390,7 @@ Moralis.Cloud.define("playerWon", async (request) => {
 });
 
 Moralis.Cloud.define("gameId", async (request) => {
-  const id = await MainBridge.methods
+  const id = await adminBot.methods
     .gameId()
     .call()
     .catch((e) => logger.error(`callName: ${e}${JSON.stringify(e, null, 2)}`));
@@ -400,9 +398,33 @@ Moralis.Cloud.define("gameId", async (request) => {
 });
 
 Moralis.Cloud.define("maxSupply", async (request) => {
-  const maxSupply = await MainBridge.methods
+  const maxSupply = await adminBot.methods
     .maxSupply()
     .call()
     .catch((e) => logger.error(`callName: ${e}${JSON.stringify(e, null, 2)}`));
   return maxSupply;
 });
+
+Moralis.Cloud.define("contractBalance", async (request) => {
+  const contractBalance = await adminBot.methods
+    .contractBalance()
+    .call()
+    .catch((e) => logger.error(`callName: ${e}${JSON.stringify(e, null, 2)}`));
+  return contractBalance;
+});
+
+/*
+
+// USE THIS CODE IN JS CONSOLE OF MORALIS SERVER TO RUN TESTS AGAINST CLOUD FUNCTIONS  -> SMART CONTRACT
+
+//const params = {_player : "0x1dD2d5530cd18273dD37619A8dA95eC0D672c414", _treasury : "0xb1b3DF1234AC44287F10054B0610eF51167f6ed2", _p : "1000000000000000000", _t : "10000000000000000000"}
+//const params = {_gameId : "2",_player : "0x1dD2d5530cd18273dD37619A8dA95eC0D672c414"};
+//const tx1 = await Parse.Cloud.run("maxSupply");
+//const tx2 = await Parse.Cloud.run("gameId");
+//const tx3 = await Parse.Cloud.run("createGame", params);
+//const tx3 = await Parse.Cloud.run("playerWon", params);
+//const tx3 = await Parse.Cloud.run("playerLost", params);
+//const tx4 = await Parse.Cloud.run("gameId");
+const tx5 = await Parse.Cloud.run("contractBalance");
+
+*/
