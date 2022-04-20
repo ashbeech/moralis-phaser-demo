@@ -8,11 +8,11 @@ contract P2EGame is Ownable {
     // admin address
     address private admin;
     // balance of tokens held in escrow
-    uint256 public balance;
+    uint256 public contractBalance;
     // this is the erc20 GameToken contract address
     address constant tokenAddress = 0x8d85a9492605FD5768883AbC5015a2019BED862E; // <-- INSERT DEPLYED ERC20 TOKEN CONTRACT HERE
-    uint256 public maxSupply = 100000000000000000000; // 100 <-- temporarily set manually for flexibility while in pre-alpha development
-    uint256 public unit = 1000000000000000000; // 1 <-- temporarily set manually for flexibility while in pre-alpha development
+    uint256 public maxSupply = 100000000000000000000; // <-- temporaily set manually for flexibility while in pre-alpha development
+    uint256 public unit = 1000000000000000000; // <-- temporaily set manually for flexibility while in pre-alpha development
     uint256 public gameId;
 
     // game data tracking
@@ -25,7 +25,7 @@ contract P2EGame is Ownable {
     // map game to balances
     mapping(address => mapping(uint256 => Game)) public balances;
     // set-up event for emitting once character minted to read out values
-    event NewGame(address indexed player, uint256 id);
+    event NewGame(uint256 id, address indexed player);
 
     // only admin account can unlock escrow
     modifier onlyAdmin() {
@@ -45,7 +45,7 @@ contract P2EGame is Ownable {
     }
 
     // retrieve current state of game funds in escrow
-    function gameState(address _player, uint256 _gameId)
+    function gameState(uint256 _gameId, address _player)
         external
         view
         returns (
@@ -82,19 +82,19 @@ contract P2EGame is Ownable {
         token.transferFrom(msg.sender, address(this), _t);
         token.transferFrom(_player, address(this), _p);
 
-        // escrow balance
-        balance += (_p + _t);
+        // full escrow balance
+        contractBalance += (_p + _t);
 
         // iterate game identifier
         gameId++;
 
         // init game data
-        balances[_player][gameId].balance = balance;
+        balances[_player][gameId].balance = (_p + _t);
         balances[_player][gameId].treasury = _treasury;
         balances[_player][gameId].locked = true;
         balances[_player][gameId].spent = false;
 
-        emit NewGame(_player, gameId);
+        emit NewGame(gameId, _player);
 
         return true;
     }
@@ -121,14 +121,14 @@ contract P2EGame is Ownable {
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        balance -= balances[_player][_gameId].balance;
+        contractBalance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
     }
 
     // admin sends funds to treasury if player loses game
-    function playerLost(address _player, uint256 _gameId)
+    function playerLost(uint256 _gameId, address _player)
         external
         onlyAdmin
         returns (bool)
@@ -142,7 +142,7 @@ contract P2EGame is Ownable {
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
 
         // amend escrow balance
-        balance -= balances[_player][_gameId].balance;
+        contractBalance -= balances[_player][_gameId].balance;
         // set game balance to spent
         balances[_player][_gameId].spent = true;
         return true;
@@ -164,7 +164,7 @@ contract P2EGame is Ownable {
         token.transfer(msg.sender, balances[msg.sender][_gameId].balance);
         // TODO: add post-transfer funcs to `_afterTokenTransfer` to validate transfer
         // amend escrow balance
-        balance -= balances[msg.sender][_gameId].balance;
+        contractBalance -= balances[msg.sender][_gameId].balance;
         // set game balance to spent
         balances[msg.sender][_gameId].spent = true;
         return true;
