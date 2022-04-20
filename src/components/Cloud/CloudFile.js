@@ -417,7 +417,7 @@ Moralis.Cloud.define("contractBalance", async (request) => {
 
 // USE THIS CODE IN JS CONSOLE OF MORALIS SERVER TO RUN TESTS AGAINST CLOUD FUNCTIONS  -> SMART CONTRACT
 
-//const params = {_player : "0x1dD2d5530cd18273dD37619A8dA95eC0D672c414", _treasury : "0xb1b3DF1234AC44287F10054B0610eF51167f6ed2", _p : "1000000000000000000", _t : "10000000000000000000"}
+//const params = {_player : "0x1dD2d5530cd18273dD37619A8dA95eC0D672c414", _treasury : "0xb1b3DF1234AC44287F10054B0610eF51167f6ed2", _p : "1000000000000000000", _t : "12000000000000000000"}
 //const params = {_gameId : "2",_player : "0x1dD2d5530cd18273dD37619A8dA95eC0D672c414"};
 //const tx1 = await Parse.Cloud.run("maxSupply");
 //const tx2 = await Parse.Cloud.run("gameId");
