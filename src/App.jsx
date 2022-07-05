@@ -1,12 +1,13 @@
 import Phaser from "phaser";
 import Boot from "./scenes/Boot.js";
-import Preloader, { authEvents, AUTH } from "./scenes/Preloader.js";
-import MainMenu, { STARTGAME } from "./scenes/MainMenu.js";
+import Preloader /*, { authEvents, AUTH }*/ from "./scenes/Preloader.js";
+import MainMenu /*, { STARTGAME }*/ from "./scenes/MainMenu.js";
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
-import { createStore, applyMiddleware } from "redux";
-import thunkMiddleware from "redux-thunk";
-import { createLogger } from "redux-logger";
+import Store, { playerLogged, UPDATE_SCORE } from "./Store";
+//import { createStore, applyMiddleware } from "redux";
+//import thunkMiddleware from "redux-thunk";
+//import { createLogger } from "redux-logger";
 import { Moralis } from "moralis";
 import {
   useMoralis,
@@ -26,21 +27,21 @@ import tokenABI from "./contracts/abis/GameToken.json";
 
 let game = null;
 
-const initState = { gameId: 0, player: {}, score: 0, nft: "", gameOver: false };
+//const initState = { gameId: 0, player: {}, score: 0, nft: "", gameOver: false };
 
 //event types
-export const GET_PLAYER = "GET_PLAYER";
-export const LOGIN_PLAYER = "LOGIN_PLAYER";
+//export const GET_PLAYER = "GET_PLAYER";
+//export const LOGIN_PLAYER = "LOGIN_PLAYER";
 // P2E integration: 3. set-up  comms to Phaser scripts
 //export const STARTGAME = "STARTGAME";
-export const UPDATE_SCORE = "UPDATE_SCORE";
-export const GAME_OVER = "GAME_OVER";
+//export const UPDATE_SCORE = "UPDATE_SCORE";
+//export const GAME_OVER = "GAME_OVER";
 
 const TOKEN_CONTRACT = process.env.REACT_APP_TOKEN_CONTRACT;
 const P2E_CONTRACT = process.env.REACT_APP_P2E_CONTRACT;
 
 // reducer
-function reducer(state = initState, action) {
+/* function reducer(state = initState, action) {
   switch (action.type) {
     case GET_PLAYER:
       return { ...state, player: action.player };
@@ -58,13 +59,13 @@ function reducer(state = initState, action) {
     default:
       return state;
   }
-}
+} */
 
 // redux
-export const events = createStore(
+/* export const events = createStore(
   reducer,
   applyMiddleware(thunkMiddleware, createLogger())
-);
+); */
 
 function App() {
   const {
@@ -111,8 +112,11 @@ function App() {
 
     await fetch({
       params: options,
-      onSuccess: (response) =>
-        authEvents.dispatch({ type: AUTH, player: _user }),
+      onSuccess: (
+        response //console.log("placeholder"),
+      ) =>
+        //authEvents.dispatch({ type: AUTH, player: _user }),
+        Store.dispatch({ type: UPDATE_SCORE, score: 10 }),
       onComplete: () => console.log("Fetched"),
       onError: (error) => console.log("Error", error),
     });
@@ -132,7 +136,20 @@ function App() {
     console.log(fulfillTx);
   };
 
-  const login = async () => {
+  // When state changes, trigger corresponding web3 actions here
+  const handleStateChange = async () => {
+    let state = Store.getState();
+    console.log(state.players);
+    // If state has no player logged-in…
+    if (state.players[0] === undefined) {
+      //state.players[0] = _user?.get("ethAddress");
+      login(state.players);
+      //state.players[0] = "hi.";
+    } else {
+    }
+  };
+
+  const login = async (_players) => {
     if (!isAuthenticated) {
       await enableWeb3();
       console.log("Is Web3 Enabled:", isWeb3Enabled);
@@ -144,11 +161,14 @@ function App() {
           console.log(_user?.get("ethAddress"));
           if (!_user) {
             // TODO: More elegantly handle failure to sign in.
-            authEvents.dispatch({ type: AUTH, player: null });
+            //authEvents.dispatch({ type: AUTH, player: null });
             logout();
             console.log("logged out");
           } else {
-            startGame(_user);
+            //console.log("USER AUTHED?:", _user?.authenticated());
+            //Store.dispatch(playerLogged(_user?.get("ethAddress")));
+            _players[0] = _user?.get("ethAddress");
+            startGame(_players[0]);
           }
         })
         .catch(function (error) {
@@ -185,17 +205,27 @@ function App() {
     if (game === null) {
       // init instance of phaser game as per config
       game = new Phaser.Game(config);
+
+      console.log(Store);
+      const unsubscribe = Store.subscribe(() => handleStateChange());
       // listen to in-game events
       // before starting we sign in with wallet
-      game.events.on("LOGIN_PLAYER", (event) => {
+      /*       game.events.on("LOGIN_PLAYER", (event) => {
         console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
         // trigger wallet authentication
         login();
-      });
+      }); */
 
-      game.events.on("GAME_OVER", (event) => {
-        console.log("Game Over: State Updated");
-        /*
+      /*       Store.on("LOGIN_PLAYER", (event) => {
+        console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
+        // trigger wallet authentication
+        //login();
+      }); */
+
+      //loginPlayer();
+      //game.events.on("GAME_OVER", (event) => {
+      //console.log("Game Over: State Updated");
+      /*
         // WIP: When GAME_OVER event triggered from within Phaser scene:  state checked for end states (win/lose).
         if (initState.gameId && initState.state === "win") {
           // 
@@ -208,14 +238,14 @@ function App() {
           win();
         }
         */
-      });
+      //});
 
-      game.events.on("STARTGAME", (event) => {
-        console.log("STARTGAME");
-        // TODO: set initial game state
-        // * gameId, etc
-        // * run cloud function for admin bot to move funcs to  escrow
-      });
+      //game.events.on("STARTGAME", (event) => {
+      //console.log("STARTGAME");
+      // TODO: set initial game state
+      // * gameId, etc
+      // * run cloud function for admin bot to move funcs to  escrow
+      //});
     }
   }
 

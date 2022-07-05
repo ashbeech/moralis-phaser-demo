@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import Door from "./Door.js";
-import { events, GAME_OVER } from "../App";
+/*import { events, GAME_OVER } from "../App";*/
 
 export default class MainGame extends Phaser.Scene {
   constructor() {
@@ -157,7 +157,7 @@ export default class MainGame extends Phaser.Scene {
   levelFail() {
     // communicate with ReactJS app
     // example trigger for on-chain connection
-    events.dispatch({ type: GAME_OVER, score: 100 });
+    //events.dispatch({ type: GAME_OVER, score: 100 });
 
     this.isPaused = true;
 
