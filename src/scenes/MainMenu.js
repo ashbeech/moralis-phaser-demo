@@ -96,8 +96,6 @@ export default class MainMenu extends Phaser.Scene {
       this.sound.stopAll();
       this.sound.play("shot");
       this.scene.start("MainGame");
-      // communicate with ReactJS app
-      //events.dispatch({ type: STARTGAME, score: 0 });
     });
   }
 }

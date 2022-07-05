@@ -5,9 +5,6 @@ import MainMenu /*, { STARTGAME }*/ from "./scenes/MainMenu.js";
 import MainGame from "./scenes/Game.js";
 import { useState, useEffect } from "react";
 import Store, { playerLogged, UPDATE_SCORE } from "./Store";
-//import { createStore, applyMiddleware } from "redux";
-//import thunkMiddleware from "redux-thunk";
-//import { createLogger } from "redux-logger";
 import { Moralis } from "moralis";
 import {
   useMoralis,
@@ -27,45 +24,8 @@ import tokenABI from "./contracts/abis/GameToken.json";
 
 let game = null;
 
-//const initState = { gameId: 0, player: {}, score: 0, nft: "", gameOver: false };
-
-//event types
-//export const GET_PLAYER = "GET_PLAYER";
-//export const LOGIN_PLAYER = "LOGIN_PLAYER";
-// P2E integration: 3. set-up  comms to Phaser scripts
-//export const STARTGAME = "STARTGAME";
-//export const UPDATE_SCORE = "UPDATE_SCORE";
-//export const GAME_OVER = "GAME_OVER";
-
 const TOKEN_CONTRACT = process.env.REACT_APP_TOKEN_CONTRACT;
 const P2E_CONTRACT = process.env.REACT_APP_P2E_CONTRACT;
-
-// reducer
-/* function reducer(state = initState, action) {
-  switch (action.type) {
-    case GET_PLAYER:
-      return { ...state, player: action.player };
-    case LOGIN_PLAYER:
-      game.events.emit("LOGIN_PLAYER", "Login player");
-      return { ...state, score: action.score };
-    // P2E integration: 4. emit event to Phaser scripts
-    case STARTGAME:
-      game.events.emit("STARTGAME", "Player STARTGAME");
-      return { ...state, score: action.score };
-    case UPDATE_SCORE:
-      return { ...state, score: action.score };
-    case GAME_OVER:
-      return { ...state, score: action.score, gameOver: true };
-    default:
-      return state;
-  }
-} */
-
-// redux
-/* export const events = createStore(
-  reducer,
-  applyMiddleware(thunkMiddleware, createLogger())
-); */
 
 function App() {
   const {
@@ -208,44 +168,6 @@ function App() {
 
       console.log(Store);
       const unsubscribe = Store.subscribe(() => handleStateChange());
-      // listen to in-game events
-      // before starting we sign in with wallet
-      /*       game.events.on("LOGIN_PLAYER", (event) => {
-        console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
-        // trigger wallet authentication
-        login();
-      }); */
-
-      /*       Store.on("LOGIN_PLAYER", (event) => {
-        console.log("⛓⛓⛓ Login via Web3 Wallet ⛓⛓⛓");
-        // trigger wallet authentication
-        //login();
-      }); */
-
-      //loginPlayer();
-      //game.events.on("GAME_OVER", (event) => {
-      //console.log("Game Over: State Updated");
-      /*
-        // WIP: When GAME_OVER event triggered from within Phaser scene:  state checked for end states (win/lose).
-        if (initState.gameId && initState.state === "win") {
-          // 
-          // set-up params
-          const params = {
-            gameId: initState.gameId,
-            player: initState.player.address,
-            winnings: initState.score,
-          };
-          win();
-        }
-        */
-      //});
-
-      //game.events.on("STARTGAME", (event) => {
-      //console.log("STARTGAME");
-      // TODO: set initial game state
-      // * gameId, etc
-      // * run cloud function for admin bot to move funcs to  escrow
-      //});
     }
   }
 

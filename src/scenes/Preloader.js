@@ -1,35 +1,8 @@
 import Phaser from "phaser";
-//import { events, LOGIN_PLAYER } from "../App";
 import Store, { loginPlayer } from "../Store";
-//import { createStore, applyMiddleware } from "redux";
-//import thunkMiddleware from "redux-thunk";
-//import { createLogger } from "redux-logger";
 
 // Phaser event emitter
 var emitter = new Phaser.Events.EventEmitter();
-
-// initial vars for game (optional)
-//const initState = { player: {}, score: 0, gameOver: false };
-
-// reducer
-/* function reducer(state = initState, action) {
-  switch (action.type) {
-    case AUTH:
-      emitter.emit("AUTH", action);
-      return { ...state };
-    default:
-      return state;
-  }
-} */
-
-// event types
-/* export const AUTH = "AUTH";
-
-// redux
-export const authEvents = createStore(
-  reducer,
-  applyMiddleware(thunkMiddleware, createLogger())
-); */
 
 export default class Preloader extends Phaser.Scene {
   constructor() {
@@ -48,16 +21,6 @@ export default class Preloader extends Phaser.Scene {
     };
 
     const unsubscribe = Store.subscribe(() => handleStateChange());
-
-    /*     emitter.on("AUTH", (event) => {
-      console.log("EVENT:", event);
-      // check user has signed-in; id exists
-      if (!event.player?.id) {
-        this.scene.start("Preloader");
-      } else {
-        this.scene.start("MainMenu");
-      }
-    }); */
   }
 
   preload() {
@@ -121,7 +84,6 @@ export default class Preloader extends Phaser.Scene {
 
     this.loading.once("pointerdown", () => {
       // communicate with ReactJS app
-      //events.dispatch({ type: LOGIN_PLAYER, score: 0 });
       Store.dispatch(loginPlayer(this.score));
     });
   }

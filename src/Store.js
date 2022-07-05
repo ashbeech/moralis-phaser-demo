@@ -72,6 +72,7 @@ export const addPlayer = (playerInfo) => {
   };
 };
  */
+
 //REDUCER
 const reducer = (state = initState, action) => {
   switch (action.type) {
